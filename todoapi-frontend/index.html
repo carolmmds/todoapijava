@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App - Java + Spring Boot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        .tarefa {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tarefa.concluida {
+            opacity: 0.6;
+            border-left-color: #28a745;
+        }
+
+        .tarefa-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .tarefa-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tarefa-acoes button {
+            margin-left: 10px;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .btn-concluir {
+            background: #28a745;
+        }
+
+        .btn-concluir:hover {
+            background: #218838;
+        }
+
+        .btn-deletar {
+            background: #dc3545;
+        }
+
+        .btn-deletar:hover {
+            background: #c82333;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .filtros button {
+            background: #6c757d;
+        }
+
+        .filtros button.ativo {
+            background: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📝 Gerenciador de Tarefas</h1>
+
+    <!-- Formulário para criar tarefa -->
+    <div class="form-group">
+        <input type="text" id="titulo" placeholder="Título da tarefa" />
+    </div>
+    <div class="form-group">
+        <textarea id="descricao" placeholder="Descrição da tarefa"></textarea>
+    </div>
+    <button onclick="criarTarefa()">➕ Adicionar Tarefa</button>
+
+    <hr style="margin: 30px 0; border: none; border-top: 2px solid #eee;">
+
+    <!-- Filtros -->
+    <div class="filtros">
+        <button class="ativo" onclick="filtrarTarefas('todas')">Todas</button>
+        <button onclick="filtrarTarefas('pendentes')">Pendentes</button>
+        <button onclick="filtrarTarefas('concluidas')">Concluídas</button>
+    </div>
+
+    <!-- Lista de tarefas -->
+    <div id="lista-tarefas" class="loading">Carregando tarefas...</div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:8080/api/tarefas';
+    let filtroAtual = 'todas';
+
+    // Carrega tarefas ao abrir a página
+    document.addEventListener('DOMContentLoaded', () => {
+        carregarTarefas();
+    });
+
+    // Função para carregar tarefas
+    async function carregarTarefas() {
+        try {
+            let url = API_URL;
+
+            if (filtroAtual === 'pendentes') {
+                url = `${API_URL}/pendentes`;
+            } else if (filtroAtual === 'concluidas') {
+                url = `${API_URL}/concluidas`;
+            }
+
+            const response = await fetch(url);
+            const tarefas = await response.json();
+
+            exibirTarefas(tarefas);
+        } catch (error) {
+            document.getElementById('lista-tarefas').innerHTML =
+                '<p style="color: red;">❌ Erro ao carregar tarefas. Verifique se a API está rodando!</p>';
+            console.error('Erro:', error);
+        }
+    }
+
+    // Função para exibir tarefas na tela
+    function exibirTarefas(tarefas) {
+        const lista = document.getElementById('lista-tarefas');
+
+        if (tarefas.length === 0) {
+            lista.innerHTML = '<p class="loading">Nenhuma tarefa encontrada.</p>';
+            return;
+        }
+
+        lista.innerHTML = tarefas.map(tarefa => `
+            <div class="tarefa ${tarefa.concluida ? 'concluida' : ''}">
+                <div class="tarefa-info">
+                    <h3>${tarefa.concluida ? '✅' : '⏳'} ${tarefa.titulo}</h3>
+                    <p>${tarefa.descricao || 'Sem descrição'}</p>
+                </div>
+                <div class="tarefa-acoes">
+                    ${!tarefa.concluida ?
+                        `<button class="btn-concluir" onclick="concluirTarefa(${tarefa.id})">✓ Concluir</button>`
+                        : ''}
+                    <button class="btn-deletar" onclick="deletarTarefa(${tarefa.id})">🗑️ Deletar</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Função para criar nova tarefa
+    async function criarTarefa() {
+        const titulo = document.getElementById('titulo').value;
+        const descricao = document.getElementById('descricao').value;
+
+        if (!titulo.trim()) {
+            alert('⚠️ Por favor, preencha o título da tarefa!');
+            return;
+        }
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    titulo: titulo,
+                    descricao: descricao,
+                    concluida: false
+                })
+            });
+
+            if (response.ok) {
+                document.getElementById('titulo').value = '';
+                document.getElementById('descricao').value = '';
+                carregarTarefas();
+            }
+        } catch (error) {
+            alert('❌ Erro ao criar tarefa!');
+            console.error('Erro:', error);
+        }
+    }
+
+    // Função para marcar tarefa como concluída
+    async function concluirTarefa(id) {
+        try {
+            // Busca a tarefa atual
+            const response = await fetch(`${API_URL}/${id}`);
+            const tarefa = await response.json();
+
+            // Atualiza marcando como concluída
+            await fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...tarefa,
+                    concluida: true
+                })
+            });
+
+            carregarTarefas();
+        } catch (error) {
+            alert('❌ Erro ao concluir tarefa!');
+            console.error('Erro:', error);
+        }
+    }
+
+    // Função para deletar tarefa
+    async function deletarTarefa(id) {
+        if (!confirm('Tem certeza que deseja deletar esta tarefa?')) {
+            return;
+        }
+
+        try {
+            await fetch(`${API_URL}/${id}`, {
+                method: 'DELETE'
+            });
+
+            carregarTarefas();
+        } catch (error) {
+            alert('❌ Erro ao deletar tarefa!');
+            console.error('Erro:', error);
+        }
+    }
+
+    // Função para filtrar tarefas
+    function filtrarTarefas(filtro) {
+        filtroAtual = filtro;
+
+        // Atualiza botões ativos
+        document.querySelectorAll('.filtros button').forEach(btn => {
+            btn.classList.remove('ativo');
+        });
+        event.target.classList.add('ativo');
+
+        carregarTarefas();
+    }
+</script>
+</body>
+</html>
