@@ -2,6 +2,7 @@ package com.carol.todoapi.controller;
 
 import com.carol.todoapi.model.Tarefa;
 import com.carol.todoapi.repository.TarefaRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,14 +39,14 @@ public class TarefaController {
 
     //POST /api/tarefas -> criar nova tarefa
     @PostMapping
-    public ResponseEntity<Tarefa> criar(@RequestBody Tarefa tarefa){
+    public ResponseEntity<Tarefa> criar(@Valid @RequestBody Tarefa tarefa){
         Tarefa tarefaSalva = tarefaRepository.save(tarefa);
         return ResponseEntity.ok(tarefaSalva);
     }
 
     //PUT /api/tarefas/{id} -> atualizar tarefa existente
     @PutMapping("/{id}")
-    public ResponseEntity<Tarefa> atualizar(@PathVariable Long id, @RequestBody Tarefa tarefaAtualizada){
+    public ResponseEntity<Tarefa> atualizar(@PathVariable Long id, @Valid @RequestBody Tarefa tarefaAtualizada){
         Optional<Tarefa> tarefaExistente = tarefaRepository.findById(id);
 
         if (tarefaExistente.isPresent()) {
