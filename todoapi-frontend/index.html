@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo App - Java + Spring Boot</title>
+    <title>Gerenciador de Tarefas - Spring Boot</title>
     <style>
         * {
             margin: 0;
@@ -12,43 +12,94 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
+        .header {
             text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        input, textarea {
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input, textarea, select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 16px;
-            transition: border 0.3s;
+            transition: all 0.3s;
+            font-family: inherit;
         }
 
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         textarea {
@@ -56,51 +107,209 @@
             min-height: 80px;
         }
 
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: #333;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
+        }
+
         button {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 12px 30px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            width: 100%;
         }
 
         button:hover {
-            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .categorias-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .categoria-item {
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .categoria-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .categoria-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .categoria-cor {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .btn-delete-cat {
+            background: #dc3545;
+            padding: 5px 12px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filtros button {
+            background: #e0e0e0;
+            color: #333;
+            padding: 8px 20px;
+            width: auto;
+            font-size: 14px;
+        }
+
+        .filtros button.ativo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tarefas-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .tarefa {
             background: #f8f9fa;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .tarefa:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .tarefa.concluida {
+            opacity: 0.7;
+            background: #e8f5e9;
+        }
+
+        .tarefa-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .tarefa-titulo {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tarefa-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .tarefa-descricao {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .tarefa-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .tarefa.concluida {
-            opacity: 0.6;
-            border-left-color: #28a745;
+        .tarefa-categoria {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
         }
 
-        .tarefa-info h3 {
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .tarefa-info p {
-            color: #666;
-            font-size: 14px;
+        .tarefa-acoes {
+            display: flex;
+            gap: 10px;
         }
 
         .tarefa-acoes button {
-            margin-left: 10px;
-            padding: 8px 15px;
+            padding: 8px 16px;
             font-size: 14px;
+            width: auto;
         }
 
         .btn-concluir {
@@ -119,157 +328,379 @@
             background: #c82333;
         }
 
-        .filtros {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-
-        .filtros button {
-            background: #6c757d;
-        }
-
-        .filtros button.ativo {
-            background: #667eea;
-        }
-
         .loading {
             text-align: center;
-            padding: 20px;
+            padding: 40px;
             color: #666;
+            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5568d3;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>📝 Gerenciador de Tarefas</h1>
-
-    <!-- Formulário para criar tarefa -->
-    <div class="form-group">
-        <input type="text" id="titulo" placeholder="Título da tarefa" />
-    </div>
-    <div class="form-group">
-        <textarea id="descricao" placeholder="Descrição da tarefa"></textarea>
-    </div>
-    <button onclick="criarTarefa()">➕ Adicionar Tarefa</button>
-
-    <hr style="margin: 30px 0; border: none; border-top: 2px solid #eee;">
-
-    <!-- Filtros -->
-    <div class="filtros">
-        <button class="ativo" onclick="filtrarTarefas('todas')">Todas</button>
-        <button onclick="filtrarTarefas('pendentes')">Pendentes</button>
-        <button onclick="filtrarTarefas('concluidas')">Concluídas</button>
+    <div class="header">
+        <h1>📋 Gerenciador de Tarefas</h1>
+        <p>Organize suas tarefas de forma simples e eficiente</p>
     </div>
 
-    <!-- Lista de tarefas -->
-    <div id="lista-tarefas" class="loading">Carregando tarefas...</div>
+    <div class="main-content">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <!-- Formulário de Categoria -->
+            <div class="card">
+                <h2 class="card-title">🏷️ Nova Categoria</h2>
+                <form id="form-categoria" onsubmit="criarCategoria(event)">
+                    <div class="form-group">
+                        <label for="cat-nome">Nome da Categoria</label>
+                        <input type="text" id="cat-nome" placeholder="Ex: Trabalho, Pessoal..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cat-descricao">Descrição</label>
+                        <input type="text" id="cat-descricao" placeholder="Descrição opcional">
+                    </div>
+                    <div class="form-group">
+                        <label>Escolha uma cor</label>
+                        <div class="color-picker" id="color-picker">
+                            <div class="color-option selected" data-color="#667eea" style="background: #667eea;"></div>
+                            <div class="color-option" data-color="#FF5733" style="background: #FF5733;"></div>
+                            <div class="color-option" data-color="#28a745" style="background: #28a745;"></div>
+                            <div class="color-option" data-color="#ffc107" style="background: #ffc107;"></div>
+                            <div class="color-option" data-color="#17a2b8" style="background: #17a2b8;"></div>
+                            <div class="color-option" data-color="#e83e8c" style="background: #e83e8c;"></div>
+                            <div class="color-option" data-color="#6610f2" style="background: #6610f2;"></div>
+                            <div class="color-option" data-color="#fd7e14" style="background: #fd7e14;"></div>
+                        </div>
+                    </div>
+                    <button type="submit">Criar Categoria</button>
+                </form>
+            </div>
+
+            <!-- Lista de Categorias -->
+            <div class="card">
+                <h2 class="card-title">📂 Categorias</h2>
+                <div class="categorias-list" id="categorias-list">
+                    <div class="loading">Carregando...</div>
+                </div>
+            </div>
+
+            <!-- Formulário de Tarefa -->
+            <div class="card">
+                <h2 class="card-title">➕ Nova Tarefa</h2>
+                <form id="form-tarefa" onsubmit="criarTarefa(event)">
+                    <div class="form-group">
+                        <label for="titulo">Título</label>
+                        <input type="text" id="titulo" placeholder="Digite o título da tarefa" required minlength="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao">Descrição</label>
+                        <textarea id="descricao" placeholder="Descreva sua tarefa..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria-select">Categoria</label>
+                        <select id="categoria-select">
+                            <option value="">Sem categoria</option>
+                        </select>
+                    </div>
+                    <button type="submit">Adicionar Tarefa</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="card">
+            <h2 class="card-title">✅ Minhas Tarefas</h2>
+
+            <!-- Filtros -->
+            <div class="filtros">
+                <button class="ativo" onclick="filtrarTarefas('todas')">📋 Todas</button>
+                <button onclick="filtrarTarefas('pendentes')">⏳ Pendentes</button>
+                <button onclick="filtrarTarefas('concluidas')">✅ Concluídas</button>
+            </div>
+
+            <!-- Lista de Tarefas -->
+            <div class="tarefas-list" id="lista-tarefas">
+                <div class="loading">Carregando tarefas...</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    const API_URL = 'http://localhost:8080/api/tarefas';
+    const API_URL = 'http://localhost:8080/api';
     let filtroAtual = 'todas';
+    let categoriaFiltro = null;
+    let corSelecionada = '#667eea';
+    let categorias = [];
 
-    // Carrega tarefas ao abrir a página
+    // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
+        carregarCategorias();
         carregarTarefas();
+        initColorPicker();
     });
 
-    // Função para carregar tarefas
-    async function carregarTarefas() {
+    // Seletor de cores
+    function initColorPicker() {
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                corSelecionada = this.dataset.color;
+            });
+        });
+    }
+
+    // Carregar categorias
+    async function carregarCategorias() {
         try {
-            let url = API_URL;
+            const response = await fetch(`${API_URL}/categorias`);
+            categorias = await response.json();
 
-            if (filtroAtual === 'pendentes') {
-                url = `${API_URL}/pendentes`;
-            } else if (filtroAtual === 'concluidas') {
-                url = `${API_URL}/concluidas`;
-            }
-
-            const response = await fetch(url);
-            const tarefas = await response.json();
-
-            exibirTarefas(tarefas);
+            exibirCategorias();
+            atualizarSelectCategorias();
         } catch (error) {
-            document.getElementById('lista-tarefas').innerHTML =
-                '<p style="color: red;">❌ Erro ao carregar tarefas. Verifique se a API está rodando!</p>';
-            console.error('Erro:', error);
+            console.error('Erro ao carregar categorias:', error);
         }
     }
 
-    // Função para exibir tarefas na tela
-    function exibirTarefas(tarefas) {
-        const lista = document.getElementById('lista-tarefas');
+    // Exibir categorias na sidebar
+    function exibirCategorias() {
+        const lista = document.getElementById('categorias-list');
 
-        if (tarefas.length === 0) {
-            lista.innerHTML = '<p class="loading">Nenhuma tarefa encontrada.</p>';
+        if (categorias.length === 0) {
+            lista.innerHTML = '<p style="text-align: center; color: #999;">Nenhuma categoria cadastrada</p>';
             return;
         }
 
-        lista.innerHTML = tarefas.map(tarefa => `
-            <div class="tarefa ${tarefa.concluida ? 'concluida' : ''}">
-                <div class="tarefa-info">
-                    <h3>${tarefa.concluida ? '✅' : '⏳'} ${tarefa.titulo}</h3>
-                    <p>${tarefa.descricao || 'Sem descrição'}</p>
+        lista.innerHTML = categorias.map(cat => `
+            <div class="categoria-item" style="background: ${cat.cor}20;" onclick="filtrarPorCategoria(${cat.id})">
+                <div class="categoria-info">
+                    <div class="categoria-cor" style="background: ${cat.cor};"></div>
+                    <div>
+                        <strong>${cat.nome}</strong>
+                        ${cat.descricao ? `<br><small style="color: #666;">${cat.descricao}</small>` : ''}
+                    </div>
                 </div>
-                <div class="tarefa-acoes">
-                    ${!tarefa.concluida ?
-                        `<button class="btn-concluir" onclick="concluirTarefa(${tarefa.id})">✓ Concluir</button>`
-                        : ''}
-                    <button class="btn-deletar" onclick="deletarTarefa(${tarefa.id})">🗑️ Deletar</button>
-                </div>
+                <button class="btn-delete-cat" onclick="event.stopPropagation(); deletarCategoria(${cat.id})">🗑️</button>
             </div>
         `).join('');
     }
 
-    // Função para criar nova tarefa
-    async function criarTarefa() {
-        const titulo = document.getElementById('titulo').value;
-        const descricao = document.getElementById('descricao').value;
+    // Atualizar select de categorias no formulário
+    function atualizarSelectCategorias() {
+        const select = document.getElementById('categoria-select');
+        select.innerHTML = '<option value="">Sem categoria</option>' +
+            categorias.map(cat => `<option value="${cat.id}">${cat.nome}</option>`).join('');
+    }
 
-        if (!titulo.trim()) {
-            alert('⚠️ Por favor, preencha o título da tarefa!');
-            return;
-        }
+    // Criar categoria
+    async function criarCategoria(event) {
+        event.preventDefault();
+
+        const nome = document.getElementById('cat-nome').value;
+        const descricao = document.getElementById('cat-descricao').value;
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(`${API_URL}/categorias`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    titulo: titulo,
+                    nome: nome,
                     descricao: descricao,
-                    concluida: false
+                    cor: corSelecionada
                 })
             });
 
             if (response.ok) {
-                document.getElementById('titulo').value = '';
-                document.getElementById('descricao').value = '';
+                document.getElementById('form-categoria').reset();
+                document.querySelector('.color-option').click(); // Reseta cor
+                carregarCategorias();
+            } else if (response.status === 409) {
+                alert('⚠️ Já existe uma categoria com este nome!');
+            }
+        } catch (error) {
+            alert('❌ Erro ao criar categoria!');
+            console.error(error);
+        }
+    }
+
+    // Deletar categoria
+    async function deletarCategoria(id) {
+        if (!confirm('Tem certeza? As tarefas desta categoria ficarão sem categoria.')) {
+            return;
+        }
+
+        try {
+            await fetch(`${API_URL}/categorias/${id}`, { method: 'DELETE' });
+            carregarCategorias();
+            carregarTarefas();
+        } catch (error) {
+            alert('❌ Erro ao deletar categoria!');
+            console.error(error);
+        }
+    }
+
+    // Carregar tarefas
+    async function carregarTarefas() {
+        try {
+            let url = `${API_URL}/tarefas`;
+
+            if (filtroAtual === 'pendentes') {
+                url += '/pendentes';
+            } else if (filtroAtual === 'concluidas') {
+                url += '/concluidas';
+            }
+
+            const response = await fetch(url);
+            let tarefas = await response.json();
+
+            // Filtrar por categoria se necessário
+            if (categoriaFiltro) {
+                tarefas = tarefas.filter(t => t.categoria && t.categoria.id === categoriaFiltro);
+            }
+
+            exibirTarefas(tarefas);
+        } catch (error) {
+            document.getElementById('lista-tarefas').innerHTML =
+                '<p style="color: red; text-align: center;">❌ Erro ao carregar tarefas!</p>';
+            console.error(error);
+        }
+    }
+
+    // Exibir tarefas
+    function exibirTarefas(tarefas) {
+        const lista = document.getElementById('lista-tarefas');
+
+        if (tarefas.length === 0) {
+            lista.innerHTML = `
+                <div class="empty-state">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <h3>Nenhuma tarefa encontrada</h3>
+                    <p>Crie uma nova tarefa para começar!</p>
+                </div>
+            `;
+            return;
+        }
+
+        lista.innerHTML = tarefas.map(tarefa => {
+            const catCor = tarefa.categoria ? tarefa.categoria.cor : '#6c757d';
+            const catNome = tarefa.categoria ? tarefa.categoria.nome : 'Sem categoria';
+
+            return `
+                <div class="tarefa ${tarefa.concluida ? 'concluida' : ''}" style="border-left-color: ${catCor};">
+                    <div class="tarefa-header">
+                        <div class="tarefa-titulo">
+                            <span>${tarefa.concluida ? '✅' : '⏳'}</span>
+                            ${tarefa.titulo}
+                        </div>
+                    </div>
+                    <div class="tarefa-descricao">
+                        ${tarefa.descricao || '<em style="color: #999;">Sem descrição</em>'}
+                    </div>
+                    <div class="tarefa-footer">
+                        <div class="tarefa-categoria" style="background: ${catCor};">
+                            🏷️ ${catNome}
+                        </div>
+                        <div class="tarefa-acoes">
+                            ${!tarefa.concluida ?
+                                `<button class="btn-concluir" onclick="concluirTarefa(${tarefa.id})">✓ Concluir</button>`
+                                : ''}
+                            <button class="btn-deletar" onclick="deletarTarefa(${tarefa.id})">🗑️ Deletar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Criar tarefa
+    async function criarTarefa(event) {
+        event.preventDefault();
+
+        const titulo = document.getElementById('titulo').value;
+        const descricao = document.getElementById('descricao').value;
+        const categoriaId = document.getElementById('categoria-select').value;
+
+        const body = {
+            titulo: titulo,
+            descricao: descricao,
+            concluida: false
+        };
+
+        if (categoriaId) {
+            body.categoria = { id: parseInt(categoriaId) };
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/tarefas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (response.ok) {
+                document.getElementById('form-tarefa').reset();
                 carregarTarefas();
             }
         } catch (error) {
             alert('❌ Erro ao criar tarefa!');
-            console.error('Erro:', error);
+            console.error(error);
         }
     }
 
-    // Função para marcar tarefa como concluída
+    // Concluir tarefa
     async function concluirTarefa(id) {
         try {
-            // Busca a tarefa atual
-            const response = await fetch(`${API_URL}/${id}`);
+            const response = await fetch(`${API_URL}/tarefas/${id}`);
             const tarefa = await response.json();
 
-            // Atualiza marcando como concluída
-            await fetch(`${API_URL}/${id}`, {
+            await fetch(`${API_URL}/tarefas/${id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...tarefa,
                     concluida: true
@@ -279,38 +710,42 @@
             carregarTarefas();
         } catch (error) {
             alert('❌ Erro ao concluir tarefa!');
-            console.error('Erro:', error);
+            console.error(error);
         }
     }
 
-    // Função para deletar tarefa
+    // Deletar tarefa
     async function deletarTarefa(id) {
         if (!confirm('Tem certeza que deseja deletar esta tarefa?')) {
             return;
         }
 
         try {
-            await fetch(`${API_URL}/${id}`, {
-                method: 'DELETE'
-            });
-
+            await fetch(`${API_URL}/tarefas/${id}`, { method: 'DELETE' });
             carregarTarefas();
         } catch (error) {
             alert('❌ Erro ao deletar tarefa!');
-            console.error('Erro:', error);
+            console.error(error);
         }
     }
 
-    // Função para filtrar tarefas
+    // Filtrar tarefas
     function filtrarTarefas(filtro) {
         filtroAtual = filtro;
+        categoriaFiltro = null;
 
-        // Atualiza botões ativos
         document.querySelectorAll('.filtros button').forEach(btn => {
             btn.classList.remove('ativo');
         });
         event.target.classList.add('ativo');
 
+        carregarTarefas();
+    }
+
+    // Filtrar por categoria
+    function filtrarPorCategoria(catId) {
+        categoriaFiltro = catId;
+        filtroAtual = 'todas';
         carregarTarefas();
     }
 </script>
